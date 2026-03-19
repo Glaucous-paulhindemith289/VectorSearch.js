@@ -1,4 +1,4 @@
-import { VectorSearch } from '/src/VectorSearch.js';
+import { VectorSearch } from './VectorSearch-min.js';
 
 
 // DOM references.

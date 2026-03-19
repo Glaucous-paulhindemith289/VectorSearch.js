@@ -3,6 +3,23 @@ Client side vector search using EmbeddingGemma with Web AI (LiteRT.js, TensorFlo
 
 ## Usage
 
+To build the minified version of the library from the src folder just run:
+
+```
+npm run build
+```
+
+Then to serve the demo folder to try it out on your own webserver run:
+
+```
+npm run demo
+```
+
+Please note that currently script.js in the dmeo/js folder imports the latest version of VectorSearch-min.js from this Github repo so change the import if you modify anything or want to host somewhere else.
+
+Please also see below for things you need to host yourself to run on your own server.
+
+
 ## Things to be aware of before using
 
 This project depends on a few things that need to be setup to work.

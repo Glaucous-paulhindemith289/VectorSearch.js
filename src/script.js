@@ -1,3 +1,14 @@
+/********************************************************************* 
+ * Client side vector search using EmbeddingGemma via Web AI demo.
+ * Coded by Jason Mayes 2026. 
+ *--------------------------------------------------------------------
+ * Connect with me on social if aquestions or comments:
+ *
+ * LinkedIn: https://www.linkedin.com/in/webai/
+ * Twitter / X: https://x.com/jason_mayes
+ * Github: https://github.com/jasonmayes
+ * CodePen: https://codepen.io/jasonmayes
+ *********************************************************************/
 import * as LiteRT from 'https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/+esm';
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js';
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js';

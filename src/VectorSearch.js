@@ -1,12 +1,12 @@
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js';
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js';
 import * as LiteRT from 'https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/+esm';
-import { VectorStore } from '/src/VectorStore.js';
-import { CosineSimilarity } from '/src/CosineSimilarity.js';
-import { EmbeddingModel } from '/src/EmbeddingModel.js';
-import { Tokenizer } from '/src/Tokenizer.js';
-import { VisualizeTokens } from '/src/VisualizeTokens.js';
-import { VisualizeEmbedding } from '/src/VisualizeEmbedding.js';
+import { VectorStore } from './VectorStore.js';
+import { CosineSimilarity } from './CosineSimilarity.js';
+import { EmbeddingModel } from './EmbeddingModel.js';
+import { Tokenizer } from './Tokenizer.js';
+import { VisualizeTokens } from './VisualizeTokens.js';
+import { VisualizeEmbedding } from './VisualizeEmbedding.js';
 
 /**
  * VectorSearch - A master orchestrator class for the RAG system.
@@ -194,7 +194,7 @@ export class VectorSearch {
       tensorBatch.push(embedding);
       textBatch.push(texts[i]);
       
-      if (tensorBatch.length >= 10 || i === texts.length - 1) {
+      if (tensorBatch.length >= 2 || i === texts.length - 1) {
         const stackedTensors = tf.stack(tensorBatch);
         const allVectors = await stackedTensors.array();
         

@@ -1,3 +1,6 @@
+import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js';
+import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js';
+import * as LiteRT from 'https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/+esm';
 import { VectorStore } from '/src/VectorStore.js';
 import { CosineSimilarity } from '/src/CosineSimilarity.js';
 import { EmbeddingModel } from '/src/EmbeddingModel.js';
@@ -35,8 +38,28 @@ export class VectorSearch {
    * Initializes the embedding model and tokenizer.
    * @return {Promise<void>}
    */
-  async load() {
+  async load(WASM_PATH = 'wasm/', STATUS_EL) {
+    if (STATUS_EL) {
+      STATUS_EL.innerText = 'Setting WebGPU Backend for TFJS...';
+    }
+    await tf.setBackend('webgpu');
+    
+    if (STATUS_EL) {
+      STATUS_EL.innerText = 'Initializing LiteRT...';
+    }
+    await LiteRT.loadLiteRt(WASM_PATH);
+    
+    const TF_BACKEND = tf.backend();
+    LiteRT.setWebGpuDevice(TF_BACKEND.device);
+
+    if (STATUS_EL) {
+      STATUS_EL.innerText = 'Loading EmbeddingGemma...';
+    }
     await this.embeddingModel.load(this.modelUrl);
+    
+    if (STATUS_EL) {
+      STATUS_EL.innerText = 'Loading Tokenizer...';
+    }
     await this.tokenizer.load(this.tokenizerId);
   }
 
@@ -51,12 +74,14 @@ export class VectorSearch {
   /**
    * Encodes text and generates an embedding.
    * @param {string} text
-   * @return {Promise<{embedding: tf.Tensor, tokens: Array<number>}>}
+   * @return {Promise<{embedding: Array<number>, tokens: Array<number>}>}
    */
   async getEmbedding(text) {
     const tokens = await this.tokenizer.encode(text);
     const { embedding } = await this.embeddingModel.getEmbedding(tokens, this.seqLength);
-    return { embedding, tokens };
+    const result = await embedding.array();
+    embedding.dispose();
+    return { embedding: result[0], tokens };
   }
 
   /**
@@ -70,12 +95,12 @@ export class VectorSearch {
 
   /**
    * Renders an embedding visualization.
-   * @param {tf.Tensor} tensor
+   * @param {Array<number>} data
    * @param {HTMLElement} vizEl
    * @param {HTMLElement} textEl
    */
-  async renderEmbedding(tensor, vizEl, textEl) {
-    await this.visualizeEmbedding.render(tensor, vizEl, textEl);
+  async renderEmbedding(data, vizEl, textEl) {
+    await this.visualizeEmbedding.render(data, vizEl, textEl);
   }
 
   /**
@@ -87,14 +112,13 @@ export class VectorSearch {
 
   /**
    * Performs a vector search.
-   * @param {tf.Tensor} queryEmbedding
+   * @param {Array<number>} queryVector
    * @param {number} threshold
    * @param {string} selectedDB
    * @param {number} maxMatches
    * @return {Promise<{results: Array<Object>, bestScore: number, bestIndex: number}>}
    */
-  async search(queryEmbedding, threshold, selectedDB, maxMatches = 10) {
-    const QUERY_VECTOR = Array.from(await queryEmbedding.data());
+  async search(queryVector, threshold, selectedDB, maxMatches = 10) {
     let matrixData = undefined;
 
     if (this.lastDBName !== selectedDB) {
@@ -110,7 +134,7 @@ export class VectorSearch {
       matrixData = this.allStoredData.map(item => item.embedding);
     }
 
-    const { values, indices } = await this.cosineSimilarity.cosineSimilarityTFJSGPUMatrix(matrixData, QUERY_VECTOR, maxMatches);
+    const { values, indices } = await this.cosineSimilarity.cosineSimilarityTFJSGPUMatrix(matrixData, queryVector, maxMatches);
     
     let topMatches = [];
     let bestIndex = 0;
@@ -147,5 +171,48 @@ export class VectorSearch {
    */
   async storeBatch(storagePayload) {
     await this.vectorStore.storeBatch(storagePayload);
+  }
+
+  /**
+   * Embeds and stores multiple texts.
+   * @param {Array<string>} texts
+   * @param {string} dbName
+   * @param {Function} progressCallback
+   */
+  async storeTexts(texts, dbName, statusElement) {
+    this.setDb(dbName);
+    let textBatch = [];
+    let tensorBatch = [];
+    
+    for (let i = 0; i < texts.length; i++) {
+      if (statusElement) {
+        statusElement.innerText = `Embedding paragraph ${i + 1} of ${texts.length}...`;
+      }
+      
+      const tokens = await this.tokenizer.encode(texts[i]);
+      const { embedding } = await this.embeddingModel.getEmbedding(tokens, this.seqLength);
+      tensorBatch.push(embedding);
+      textBatch.push(texts[i]);
+      
+      if (tensorBatch.length >= 10 || i === texts.length - 1) {
+        const stackedTensors = tf.stack(tensorBatch);
+        const allVectors = await stackedTensors.array();
+        
+        const storagePayload = allVectors.map((vector, index) => ({
+          embedding: vector[0],
+          text: textBatch[index]
+        }));
+
+        await this.vectorStore.storeBatch(storagePayload);
+
+        tensorBatch.forEach(t => t.dispose());
+        stackedTensors.dispose();
+        tensorBatch = [];
+        textBatch = [];
+        
+        console.log('DB Batch Write');
+      }
+    }
+    await this.deleteGPUVectorCache();
   }
 }

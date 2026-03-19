@@ -1,7 +1,16 @@
 # VectorSearch.js
-Client side vector search using EmbeddingGemma with Web AI (LiteRT.js, TensorFlow.js, and Transformers.js)
+A library to perform vector search entirely client side in the web browser using Google's EmbeddingGemma model via Web AI libraries with WebGPU acceleration for speed. The library also supports visualizing tokens of text, and the text embeddings if you desire. Here is an example of it in action:
 
-## Usage
+###Got questions? 
+[Reach out to me over on LinkedIn]((https://www.linkedin.com/in/webai)) or follow for updates on related client side Web AI projects.
+
+
+## Show me a demo that works already
+
+Sure [check out my Codepen demo here](https://codepen.io/jasonmayes/pen/JoKMBmq)!
+
+
+## Building and serving yourself
 
 To build the minified version of the library from the src folder just run:
 

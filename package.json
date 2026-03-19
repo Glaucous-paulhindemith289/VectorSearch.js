@@ -1,0 +1,12 @@
+{
+  "name": "VectorSearch",
+  "version": "1.0.0",
+  "description": "Client side Vector Search",
+  "main": "index.html",
+  "scripts": {
+    "build": "npx esbuild ./src/VectorSearch.js --bundle --minify --format=esm --outfile=./js/VectorSearch-min.js --external:https://* --external:http://*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

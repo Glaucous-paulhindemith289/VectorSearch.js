@@ -1,5 +1,5 @@
 # VectorSearch.js
-### A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer writtien on top of IndexDB) and currently supports Google's EmbeddingGemma model via Web AI libraries with WebGPU acceleration for speed.
+### A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer written on top of IndexDB) and currently supports Google's EmbeddingGemma model via Web AI libraries with WebGPU acceleration for speed.
 
 🦾 As it runs in the browser on YOUR hardware it's totally private, costs zero dollars to use (other than your own electricity), and super low latency. 
 

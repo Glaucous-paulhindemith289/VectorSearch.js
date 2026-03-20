@@ -3,7 +3,7 @@ A library to perform vector search entirely client side in the web browser (cust
 
 ![Screenshot of VectorSearch.js in action](https://github.com/jasonmayes/VectorSearch.js/blob/main/demo/demo.jpg?raw=true)
 
-###Got questions? 
+### Got questions? 
 [Reach out to me over on LinkedIn]((https://www.linkedin.com/in/webai)) or follow for updates on related client side Web AI projects.
 
 

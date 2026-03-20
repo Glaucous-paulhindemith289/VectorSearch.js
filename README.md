@@ -1,23 +1,22 @@
 # VectorSearch.js
-A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer writtien on top of IndexDB) and currently supports Google's EmbeddingGemma model via Web AI libraries with WebGPU acceleration for speed.
+### A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer writtien on top of IndexDB) and currently supports Google's EmbeddingGemma model via Web AI libraries with WebGPU acceleration for speed.
 
 🦾 As it runs in the browser on YOUR hardware it's totally private, costs zero dollars to use (other than your own electricity), and super low latency. 
 
-🤖 Powered by WebGPU for speed and builds upon no less than 3 popular Web ML Libraries and runtimes to get the best bits of all of them: LiteRT.js, Transformers-js, and TensorFlow.js.
+🤖 Powered by WebGPU for speed and builds upon no less than 3 popular Web ML Libraries and runtimes to get the best bits of all of them: [LiteRT.js](https://ai.google.dev/edge/litert/web/get_started), [Transformers.js](https://huggingface.co/docs/transformers.js/en/index), and [TensorFlow.js](https://www.tensorflow.org/js).
 
 ⭐ Give it a star on Github if you want me to keep evolving the code or have ideas. 
 
-Here is an example of it in action:
+### Show me a demo that works already
+
+Sure [check out my Codepen demo here](https://codepen.io/jasonmayes/pen/JoKMBmq)!
+
+Here's a screen sh ot it in action:
 
 ![Screenshot of VectorSearch.js in action](https://github.com/jasonmayes/VectorSearch.js/blob/main/demo/demo.jpg?raw=true)
 
 ### Got questions? 
 [Reach out to me over on LinkedIn](https://www.linkedin.com/in/webai) or follow for updates on related client side Web AI projects.
-
-
-## Show me a demo that works already
-
-Sure [check out my Codepen demo here](https://codepen.io/jasonmayes/pen/JoKMBmq)!
 
 
 ## Performance

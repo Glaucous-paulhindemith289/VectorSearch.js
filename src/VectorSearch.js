@@ -131,7 +131,7 @@ export class VectorSearch {
    * @param {number} maxMatches
    * @return {Promise<{results: Array<Object>, bestScore: number, bestIndex: number}>}
    */
-  async search(queryVector, threshold, selectedDB, maxMatches = 10) {
+  async search(queryVector, threshold, selectedDB, maxMatches = 5) {
     let matrixData = undefined;
 
     if (this.lastDBName !== selectedDB) {
@@ -223,14 +223,12 @@ export class VectorSearch {
           stackedTensors.dispose();
           tensorBatch = [];
           textBatch = [];
-        
-          console.log('DB Batch Write');
         }
       } else {
         // Using Transformers.js model.
-        const { returnedEmbedding } = await this.embeddingModel.getEmbeddingTransformers(texts[i]);
+        const { embedding } = await this.embeddingModel.getEmbeddingTransformers(texts[i]);
         const storagePayload = {
-          embedding: returnedEmbedding,
+          embedding: embedding,
           text: texts[i]
         };
 

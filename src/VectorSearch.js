@@ -1,6 +1,7 @@
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js';
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js';
 import * as LiteRT from 'https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/+esm';
+
 import { VectorStore } from './VectorStore.js';
 import { CosineSimilarity } from './CosineSimilarity.js';
 import { EmbeddingModel } from './EmbeddingModel.js';
@@ -18,14 +19,15 @@ export class VectorSearch {
    * @param {string} tokenizerId ID for the Transformers.js tokenizer.
    * @param {number} seqLength Expected sequence length for the model.
    */
-  constructor(modelUrl, tokenizerId, seqLength) {
-    this.modelUrl = modelUrl;
-    this.tokenizerId = tokenizerId;
-    this.seqLength = seqLength;
+  constructor(modelConfig) {
+    this.modelUrl = modelConfig.url;
+    this.modelRuntime = modelConfig.runtime;
+    this.tokenizerId = modelConfig.tokenizer;
+    this.seqLength = modelConfig.sequenceLength;
 
     this.vectorStore = new VectorStore();
     this.cosineSimilarity = new CosineSimilarity();
-    this.embeddingModel = new EmbeddingModel();
+    this.embeddingModel = new EmbeddingModel(this.modelRuntime);
     this.tokenizer = new Tokenizer();
     this.visualizeTokens = new VisualizeTokens();
     this.visualizeEmbedding = new VisualizeEmbedding();
@@ -38,29 +40,34 @@ export class VectorSearch {
    * Initializes the embedding model and tokenizer.
    * @return {Promise<void>}
    */
-  async load(WASM_PATH = 'wasm/', STATUS_EL) {
+  async load(STATUS_EL) {
     if (STATUS_EL) {
       STATUS_EL.innerText = 'Setting WebGPU Backend for TFJS...';
     }
     await tf.setBackend('webgpu');
     
     if (STATUS_EL) {
-      STATUS_EL.innerText = 'Initializing LiteRT...';
+      STATUS_EL.innerText = 'Initializing Model Runtime...';
     }
-    await LiteRT.loadLiteRt(WASM_PATH);
-    
-    const TF_BACKEND = tf.backend();
-    LiteRT.setWebGpuDevice(TF_BACKEND.device);
+
+    if (this.modelRuntime === 'litertjs') {
+      const LITERTJS_WASM_PATH = 'https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/wasm/';
+      await LiteRT.loadLiteRt(LITERTJS_WASM_PATH);
+      const TF_BACKEND = tf.backend();
+      LiteRT.setWebGpuDevice(TF_BACKEND.device);
+    }
 
     if (STATUS_EL) {
-      STATUS_EL.innerText = 'Loading EmbeddingGemma...';
+      STATUS_EL.innerText = 'Loading Tokenizer & Embedding Model...';
     }
-    await this.embeddingModel.load(this.modelUrl);
+    await this.embeddingModel.load(this.modelUrl, this.modelRuntime);
     
     if (STATUS_EL) {
       STATUS_EL.innerText = 'Loading Tokenizer...';
     }
-    await this.tokenizer.load(this.tokenizerId);
+    if (this.modelRuntime === 'litertjs') {
+      await this.tokenizer.load(this.tokenizerId);
+    }
   }
 
   /**
@@ -77,11 +84,17 @@ export class VectorSearch {
    * @return {Promise<{embedding: Array<number>, tokens: Array<number>}>}
    */
   async getEmbedding(text) {
-    const tokens = await this.tokenizer.encode(text);
-    const { embedding } = await this.embeddingModel.getEmbedding(tokens, this.seqLength);
-    const result = await embedding.array();
-    embedding.dispose();
-    return { embedding: result[0], tokens };
+    if (this.modelRuntime === 'litertjs') {
+      const tokens = await this.tokenizer.encode(text);
+      const { embedding } = await this.embeddingModel.getEmbeddingLiteRTJS(tokens, this.seqLength);
+      const result = await embedding.array();
+      embedding.dispose();
+      return { embedding: result[0], tokens };
+    } else {
+      // Transformers.js (no tokens returned).
+      const { embedding } = await this.embeddingModel.getEmbeddingTransformers(text);
+      return { embedding: result[0] };
+    }
   }
 
   /**
@@ -189,28 +202,39 @@ export class VectorSearch {
         statusElement.innerText = `Embedding paragraph ${i + 1} of ${texts.length}...`;
       }
       
-      const tokens = await this.tokenizer.encode(texts[i]);
-      const { embedding } = await this.embeddingModel.getEmbedding(tokens, this.seqLength);
-      tensorBatch.push(embedding);
-      textBatch.push(texts[i]);
+      if (this.modelRuntime === 'litertjs') {
+        const tokens = await this.tokenizer.encode(texts[i]);
+        const { embedding } = await this.embeddingModel.getEmbeddingLiteRTJS(tokens, this.seqLength);
+        tensorBatch.push(embedding);
+        textBatch.push(texts[i]);
       
-      if (tensorBatch.length >= 2 || i === texts.length - 1) {
-        const stackedTensors = tf.stack(tensorBatch);
-        const allVectors = await stackedTensors.array();
+        if (tensorBatch.length >= 2 || i === texts.length - 1) {
+          const stackedTensors = tf.stack(tensorBatch);
+          const allVectors = await stackedTensors.array();
         
-        const storagePayload = allVectors.map((vector, index) => ({
-          embedding: vector[0],
-          text: textBatch[index]
-        }));
+          const storagePayload = allVectors.map((vector, index) => ({
+            embedding: vector[0],
+            text: textBatch[index]
+          }));
 
-        await this.vectorStore.storeBatch(storagePayload);
+          await this.vectorStore.storeBatch(storagePayload);
 
-        tensorBatch.forEach(t => t.dispose());
-        stackedTensors.dispose();
-        tensorBatch = [];
-        textBatch = [];
+          tensorBatch.forEach(t => t.dispose());
+          stackedTensors.dispose();
+          tensorBatch = [];
+          textBatch = [];
         
-        console.log('DB Batch Write');
+          console.log('DB Batch Write');
+        }
+      } else {
+        // Using Transformers.js model.
+        const { returnedEmbedding } = await this.embeddingModel.getEmbeddingTransformers(texts[i]);
+        const storagePayload = {
+          embedding: returnedEmbedding,
+          text: texts[i]
+        };
+
+        await this.vectorStore.storeBatch([storagePayload]);
       }
     }
     await this.deleteGPUVectorCache();

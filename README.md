@@ -127,7 +127,20 @@ This model is available to download from HuggingFace which you must do yourself 
 [Download it yourself from HuggingFace](https://huggingface.co/litert-community/embeddinggemma-300m/resolve/main/embeddinggemma-300M_seq1024_mixed-precision.tflite?download=true) so any applicable T&C accepted. You can then place this downloaded model into the demo/model folder. If you place it somewhere else update the code in script.js accordingly:
 
 ```javascript
+// Embedding Model Configuration.
+const MODEL_RUNTIME = 'litertjs';
 const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite';
+const SEQ_LENGTH = 1024;
+const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
+const EMBEDDING_MODEL_CONFIG = {
+  runtime: MODEL_RUNTIME,
+  url: MODEL_URL,
+  sequenceLength: SEQ_LENGTH,
+  tokenizer: TOKENIZER
+};
+
+// Instantiate VectorSearch Master Class.
+const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
 ```
 
 For more details [see the model card page on HuggingFace](https://huggingface.co/litert-community/embeddinggemma-300m).
@@ -142,15 +155,17 @@ If you wish to use the all-MiniLM-L6-v2 embedding model instead for speed you ca
 // Embedding Model Configuration.
 const MODEL_RUNTIME = 'transformersjs';
 const MODEL_URL = 'Xenova/all-MiniLM-L6-v2';
-const SEQ_LENGTH = 1024;
+const SEQ_LENGTH = 128;
 const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
 const EMBEDDING_MODEL_CONFIG = {
   runtime: MODEL_RUNTIME,
-  litertjsWasmUrl: 'https://assets.codepen.io/48236/',
   url: MODEL_URL,
   sequenceLength: SEQ_LENGTH,
   tokenizer: TOKENIZER
 };
+
+// Instantiate VectorSearch Master Class.
+const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
 ```
 
 However please note this model is faster for a few reasons:
@@ -167,9 +182,14 @@ By default the library pulls in these Wasm files from JSDeliver CDN.
 If your hosted version is not in the same location update the config object to specify the new Wasm folder location on your webserver as follows:
 
 ```javascript
+// Embedding Model Configuration.
+const MODEL_RUNTIME = 'litertjs';
+const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite';
+const SEQ_LENGTH = 1024;
+const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
 const EMBEDDING_MODEL_CONFIG = {
   runtime: MODEL_RUNTIME,
-  litertjsWasmUrl: 'YOUR Wasm Files location here!',
+  litertjsWasmUrl: '/wasm', // Specify your path to your custom hosted Wasm files here!
   url: MODEL_URL,
   sequenceLength: SEQ_LENGTH,
   tokenizer: TOKENIZER

@@ -1,5 +1,5 @@
 # VectorSearch.js
-### A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer written on top of IndexDB) and currently supports Google's EmbeddingGemma model via Web AI libraries with WebGPU acceleration for speed.
+### A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer written on top of IndexDB) and currently supports Google's EmbeddingGemma (highest quality but 300Mb), or all-Mini-L6-v2 (fastest and only 30mb) embedding models via Web AI libraries with WebGPU acceleration for speed.
 
 🦾 As it runs in the browser on YOUR hardware it's totally private, costs zero dollars to use (other than your own electricity), and super low latency. 
 
@@ -24,18 +24,25 @@ Here's a screen shot of it in action:
 ```javascript
 import { VectorSearch } from 'https://cdn.jsdelivr.net/gh/jasonmayes/VectorSearch.js@main/VectorSearch-min.js';
 
-// Configuration.
-const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite';  // Location of hosted EmbeddingGemma TFLite file.
-const TOKENIZER_ID = 'onnx-community/embeddinggemma-300m-ONNX';  // Transformers.js Tokenizer to use.
-const SEQ_LENGTH = 1024; // EmbeddingGemma version sequence length.
-let vectorSearch = undefined;
+// Embedding Model Configuration.
+const MODEL_RUNTIME = 'litertjs'; // OR 'transformersjs'
+const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite'; // OR 'Xenova/all-MiniLM-L6-v2' if transformersjs runtime.
+const SEQ_LENGTH = 1024;
+const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
+const EMBEDDING_MODEL_CONFIG = {
+  runtime: MODEL_RUNTIME,
+  url: MODEL_URL,
+  sequenceLength: SEQ_LENGTH,
+  tokenizer: TOKENIZER
+};
+
+// Instantiate VectorSearch Master Class.
+const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
 
 // Initiation and usage example.
 async function init(statusDomElement) {
-  vectorSearch = new VectorSearch(MODEL_URL, TOKENIZER_ID, SEQ_LENGTH);
-  // Specify location of hosted LiteRT.js Wasm runtime files
-  // (demo hosts in /wasm folder but you can use JSDeliver CDN too like this):
-  await vectorSearch.load('https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/wasm/', statusDomElement); 
+  // Actually load the chosen runtime and model so ready to use.
+  await VECTOR_SEARCH.load(statusDomElement);
 
   await store(['I love Web AI', 'I like cats', 'Dogs are cool too', 'AI rocks', 'Birds can fly', 'Web AI is client side AI', 'Fish can swim', 'Robots are neat', 'JavaScript rocks too!', 'and so on']);
   await find('Likes animals', 0.25);
@@ -46,23 +53,25 @@ init();
 
 // How to store text in client side VectorDB
 async function store(someArrayOfStrings) {
-  await vectorSearch.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData');
+  await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData');
   // Optionally can specify callback to write status to a HTML DOM element:
-  // await vectorSearch.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData', STATUS_EL);
+  // await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData', STATUS_EL);
 }
 
 
 // Search example.
 async function find(queryText, cosineSimilarityThreshold) {
-  const {embedding: EMBEDDING_DATA, tokens: TOKENS} = await vectorSearch.getEmbedding(queryText);
+  const {embedding: EMBEDDING_DATA, tokens: TOKENS} = await VECTOR_SEARCH.getEmbedding(queryText);
 
   /** Optional: Visualize embeddings and tokens for the search query text.
-  vectorSearch.renderTokens(TOKENS, SOME_DOM_ELEMENT);
-  await vectorSearch.renderEmbedding(EMBEDDING_DATA, SOME_DOM_ELEMENT_FOR_VISUAL, SOME_DOM_ELEMENT_FOR_TEXT);
+  if (TOKENS) {
+    VECTOR_SEARCH.renderTokens(TOKENS, SOME_DOM_ELEMENT);
+  }
+  await VECTOR_SEARCH.renderEmbedding(EMBEDDING_DATA, SOME_DOM_ELEMENT_FOR_VISUAL, SOME_DOM_ELEMENT_FOR_TEXT);
   **/
 
   // Now actually search the vector database.
-  const {results: RESULTS, bestScore: BEST_SCORE, bestIndex: BEST_INDEX} = await vectorSearch.search(EMBEDDING_DATA, cosineSimilarityThreshold, 'DatabaseNameForThisData');
+  const {results: RESULTS, bestScore: BEST_SCORE, bestIndex: BEST_INDEX} = await VECTOR_SEARCH.search(EMBEDDING_DATA, cosineSimilarityThreshold, 'DatabaseNameForThisData');
 
   if (RESULTS.length > 0) {  
     const BEST_MATCH_VECTOR = RESULTS[BEST_INDEX].vector;
@@ -80,7 +89,7 @@ async function find(queryText, cosineSimilarityThreshold) {
 
 ## Performance
 
-[I tried to make this as fast as I could](https://www.linkedin.com/posts/webai_rag-litertjs-embeddinggemma-activity-7423026459201523712-IWiD?utm_source=share&utm_medium=member_desktop&rcm=ACoAAE29dSoB2Q5rqrgken9VCQgyG_zQ-gVgvG8). I have tested with 100K vectors on my very old NVIDIA 1070 GPU and it can search those in tens of miliseconds. The largest cost is actually the embedding that takes around 300ms using the EmbeddingGemma model (high quality but large). You may want to swap this out for a leaner embedding model (e.g. all-MiniLM-L6-v2 that Transformers.js also supports) for the ultimate client side speed for embedding - if enough demand I can add support for that too - just open a bug.
+[I tried to make this as fast as I could](https://www.linkedin.com/posts/webai_rag-litertjs-embeddinggemma-activity-7423026459201523712-IWiD?utm_source=share&utm_medium=member_desktop&rcm=ACoAAE29dSoB2Q5rqrgken9VCQgyG_zQ-gVgvG8). I have tested with 100K vectors on my very old NVIDIA 1070 GPU and it can search those in tens of miliseconds using the more complex EmbeddingGemma model by Google. The largest cost is actually the embedding that takes around 200ms using the EmbeddingGemma model (high quality but large). You may want to swap this out for a leaner embedding model (e.g. all-MiniLM-L6-v2) for the ultimate client side speed of embedding - see example code above for how to change the config object to use that instead.
 
 Currently it is designed to preload the IndexDB vector DB I wrote (yes even the vector DB is client side) into GPU memory to perform as fast as possible when calculating cosine similarity for your target text across all stored vectors. So that means the first search you perform will be slower as it has to transfer memory from CPU to GPU for the first time (suggest doing a dummy vector search on page load to warm up). This also means that it currently takes roughly the SAME time for 100K vectors searched vs 1K vectors due to leveraging the GPU. I have not yet found the upper bound, but there is obviously a limit here, depending on your GPU type, VRAM size etc. I will later need to refactor to load in chunks to avoid any issues for larger vector stores on client side.
 
@@ -100,7 +109,7 @@ Then to serve the demo folder to try it out on your own webserver run:
 npm run demo
 ```
 
-Please note that currently script.js in the dmeo/js folder imports the latest version of VectorSearch-min.js from this Github repo so change the import if you modify anything or want to host somewhere else.
+Please note that currently script.js in the demo/js folder imports the latest version of VectorSearch-min.js from this Github repo so change the import if you modify anything or want to host somewhere else.
 
 Please also see below for things you need to host yourself to run on your own server.
 
@@ -109,27 +118,9 @@ Please also see below for things you need to host yourself to run on your own se
 
 This project depends on a few things that need to be setup to work.
 
-### LiteRT.js Wasm files required
-
-See the demo folder in this repo that contains a "wasm" sub folder with all the Web Assembly files needed for the LiteRT.js runtime. You will need to serve these files yourself to use the library. If you are curious to learn more about these files see the [official LiteRT.js documentation](https://ai.google.dev/edge/litert/web).
-
-By default the library assumes this "wasm" folder exists in the www root at "wasm/". 
-
-If your hosted version is not in the same location update the call to VECTOR_SEARCH.load() to specify the new Wasm folder location on your webserver as follows:
-
-```javascript
-await VECTOR_SEARCH.load('wasm/');
-```
-
-Note when you call load you can also optionally specify a HTML element to render loading status updates to like this:
-
-```javascript
-await VECTOR_SEARCH.load('wasm/', STATUS_EL);
-```
-
 ### EmbeddingGemma model
 
-This repo uses Google's EmbeddingGemma model for the embedding model. Specifically this one: embeddinggemma-300M_seq1024_mixed-precision.tflite
+This repo uses Google's EmbeddingGemma model for the embedding model by default for highest quality. Specifically this one: embeddinggemma-300M_seq1024_mixed-precision.tflite
 
 This model is available to download from HuggingFace which you must do yourself manually:
 
@@ -142,6 +133,57 @@ const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite';
 For more details [see the model card page on HuggingFace](https://huggingface.co/litert-community/embeddinggemma-300m).
 
 This is a LiteRT.js Web AI compatible EmbeddingGemma model using the tflite model format.
+
+### all-MiniLM-L6-v2 embedding model
+
+If you wish to use the all-MiniLM-L6-v2 embedding model instead for speed you can change the config object to be:
+
+```javascript
+// Embedding Model Configuration.
+const MODEL_RUNTIME = 'transformersjs';
+const MODEL_URL = 'Xenova/all-MiniLM-L6-v2';
+const SEQ_LENGTH = 1024;
+const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
+const EMBEDDING_MODEL_CONFIG = {
+  runtime: MODEL_RUNTIME,
+  litertjsWasmUrl: 'https://assets.codepen.io/48236/',
+  url: MODEL_URL,
+  sequenceLength: SEQ_LENGTH,
+  tokenizer: TOKENIZER
+};
+```
+
+However please note this model is faster for a few reasons:
+
+1. The input text to be embedded can only be up to 128 tokens vs EmbeddingGemma's 1024 tokens.
+2. The vector embedding produced has 384 dimensions vs EmbeddingGemma's 786 dimensions.
+
+### LiteRT.js Wasm files (optional self host)
+
+See the demo folder in this repo that contains a "wasm" sub folder with all the Web Assembly files needed for the LiteRT.js runtime. You can choose to serve these files yourself and update the config object if you do so but remember to enable CORS headers on your server so the files can be used if you do that. If you are curious to learn more about these files see the [official LiteRT.js documentation](https://ai.google.dev/edge/litert/web).
+
+By default the library pulls in these Wasm files from JSDeliver CDN. 
+
+If your hosted version is not in the same location update the config object to specify the new Wasm folder location on your webserver as follows:
+
+```javascript
+const EMBEDDING_MODEL_CONFIG = {
+  runtime: MODEL_RUNTIME,
+  litertjsWasmUrl: 'YOUR Wasm Files location here!',
+  url: MODEL_URL,
+  sequenceLength: SEQ_LENGTH,
+  tokenizer: TOKENIZER
+};
+
+// Instantiate VectorSearch Master Class.
+const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
+```
+
+Note when you call load you can also optionally specify a HTML element to render loading status updates to like this:
+
+```javascript
+await VECTOR_SEARCH.load(STATUS_EL);
+```
 
 ## Shoutouts
 

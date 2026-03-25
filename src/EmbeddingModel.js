@@ -75,7 +75,7 @@ export class EmbeddingModel {
    */
   async getEmbeddingTransformers(text) {
     if (this.runtime === 'transformersjs') {
-      const queryResult = await this.model(query, { pooling: 'mean', normalize: true });
+      const queryResult = await this.model(text, { pooling: 'mean', normalize: true });
       const queryVector = Array.from(queryResult.data);
       return {
         embedding: queryVector

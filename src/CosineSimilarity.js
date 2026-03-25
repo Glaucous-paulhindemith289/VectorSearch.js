@@ -69,8 +69,9 @@ export class CosineSimilarity {
       // 4. Compute Dot Product
       // We can use matMul by reshaping vector to [D, 1]
       // [N, D] * [D, 1] -> [N, 1]
+      let dotProduct = undefined;
       try {
-        const dotProduct = tf.matMul(
+        dotProduct = tf.matMul(
             normalizedMatrix, 
             normalizedVector.reshape([-1, 1])
         );

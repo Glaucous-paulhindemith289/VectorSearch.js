@@ -1,13 +1,15 @@
 import * as LiteRT from 'https://cdn.jsdelivr.net/npm/@litertjs/core@0.2.1/+esm';
 import * as LiteRTInterop from 'https://cdn.jsdelivr.net/npm/@litertjs/tfjs-interop@1.0.1/+esm';
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
 /**
  * A class to handle loading and using the EmbeddingGemma model with LiteRT.
  * Coded by Jason Mayes 2026.
  */
 export class EmbeddingModel {
-  constructor() {
+  constructor(modelRuntime) {
     this.model = undefined;
+    this.runtime = modelRuntime;
   }
 
   /**
@@ -21,10 +23,16 @@ export class EmbeddingModel {
     // in the main script or within this load method if needed.
     // However, the user asked to keep the logic similar, so we'll just handle 
     // model loading and compilation here.
-    
-    this.model = await LiteRT.loadAndCompile(modelUrl, {
-      accelerator: 'webgpu',
-    });
+
+    if (this.runtime === 'litertjs') {
+      this.model = await LiteRT.loadAndCompile(modelUrl, {
+        accelerator: 'webgpu',
+      });
+    } else {
+      // Transformers.js model.
+      // Load the feature-extraction pipeline
+      this.model = await pipeline('feature-extraction', modelUrl);
+    }
   }
 
   /**
@@ -33,29 +41,45 @@ export class EmbeddingModel {
    * @param {number} seqLength Expected sequence length for the model.
    * @return {Promise<{embedding: tf.Tensor, tokens: Array<number>}>} The generated embedding tensor.
    */
-  async getEmbedding(tokens, seqLength) {
+  async getEmbeddingLiteRTJS(tokens, seqLength) {
     if (!this.model) {
       throw new Error('Model not loaded. Call load() first.');
     }
-
-    let inputTensor = tf.tensor1d(tokens, 'int32');
     
-    // Ensure to fill to expected model token length else trim.
-    if (tokens.length < seqLength) {
-      inputTensor = inputTensor.pad([[0, seqLength - tokens.length]]);
-    } else if (tokens.length > seqLength) {
-      inputTensor = inputTensor.slice([0], [seqLength]);
+    if (this.runtime === 'litertjs') {
+      let inputTensor = tf.tensor1d(tokens, 'int32');
+    
+      // Ensure to fill to expected model token length else trim.
+      if (tokens.length < seqLength) {
+        inputTensor = inputTensor.pad([[0, seqLength - tokens.length]]);
+      } else if (tokens.length > seqLength) {
+        inputTensor = inputTensor.slice([0], [seqLength]);
+      }
+    
+      const EXPANDED_INPUT = inputTensor.expandDims(0);
+      const RESULTS = LiteRTInterop.runWithTfjsTensors(this.model, EXPANDED_INPUT);
+
+      inputTensor.dispose();
+      EXPANDED_INPUT.dispose();
+      return {
+        embedding: RESULTS[0], // Returns batch of 1.
+        tokens: tokens
+      };
     }
-    
-    const EXPANDED_INPUT = inputTensor.expandDims(0);
-    const RESULTS = LiteRTInterop.runWithTfjsTensors(this.model, EXPANDED_INPUT);
+  }
 
-    inputTensor.dispose();
-    EXPANDED_INPUT.dispose();
-
-    return {
-      embedding: RESULTS[0], // Returns batch of 1.
-      tokens: tokens
-    };
+  /**
+   * Generates an embedding for the given tokens.
+   * @param {string} text Text to embed.
+   * @return {Promise<{embedding: Array<number>}>} The generated embedding.
+   */
+  async getEmbeddingTransformers(text) {
+    if (this.runtime === 'transformersjs') {
+      const queryResult = await this.model(query, { pooling: 'mean', normalize: true });
+      const queryVector = Array.from(queryResult.data);
+      return {
+        embedding: queryVector
+      };
+    }
   }
 }

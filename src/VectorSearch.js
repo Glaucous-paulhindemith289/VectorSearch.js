@@ -200,7 +200,7 @@ export class VectorSearch {
       if (statusElement) {
         statusElement.innerText = `Embedding paragraph ${i + 1} of ${texts.length}...`;
       }
-      
+      // TODO: Update batching for LiteRT - currently batches DB sends not model inference batching.
       if (this.modelRuntime === 'litertjs') {
         const tokens = await this.tokenizer.encode(texts[i]);
         const { embedding } = await this.embeddingModel.getEmbeddingLiteRTJS(tokens, this.seqLength);
@@ -229,17 +229,17 @@ export class VectorSearch {
 
         // Parallelize embedding of texts as such tiny model.
         if (textBatch.length >= batchSize || i === texts.length - 1) {
-          const EMBEDDINGS = await this.embeddingModel.getEmbeddingTransformers(textBatch);
-
-          for (let e = 0; e < EMBEDDINGS.length; e++) {
+          // Returns huge 1D array of embeddings.
+          const { embedding: EMBEDDINGS } = await this.embeddingModel.getEmbeddingTransformers(textBatch);
+          const EMBEDDING_LENGTH = EMBEDDINGS.length / batchSize;
+          for (let e = 0; e < (EMBEDDINGS.length / EMBEDDING_LENGTH); e++) {
             const storagePayload = {
-              embedding: EMBEDDINGS[e].embedding,
+              embedding: EMBEDDINGS.slice(e * EMBEDDING_LENGTH, (e + 1) * EMBEDDING_LENGTH),
               text: textBatch[e]
             };
-
             await this.vectorStore.storeBatch([storagePayload]);
-            textBatch = [];
           }
+          textBatch = [];
         }
       }
     }

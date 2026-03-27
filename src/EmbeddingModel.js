@@ -24,7 +24,7 @@ export class EmbeddingModel {
     // in the main script or within this load method if needed.
     // However, the user asked to keep the logic similar, so we'll just handle 
     // model loading and compilation here.
-    let dataUrl = await FileProxyCache.loadFromURL(fileName);
+    let dataUrl = await FileProxyCache.loadFromURL(modelUrl);
     
     if (this.runtime === 'litertjs') {
       this.model = await LiteRT.loadAndCompile(dataUrl, {

@@ -70,12 +70,12 @@ export class EmbeddingModel {
 
   /**
    * Generates an embedding for the given tokens.
-   * @param {string} text Text to embed.
+   * @param {string|Array<string>} textBatch Text or array of text to embed.
    * @return {Promise<{embedding: Array<number>}>} The generated embedding.
    */
-  async getEmbeddingTransformers(text) {
+  async getEmbeddingTransformers(textBatch) {
     if (this.runtime === 'transformersjs') {
-      const queryResult = await this.model(text, { pooling: 'mean', normalize: true });
+      const queryResult = await this.model(textBatch, { pooling: 'mean', normalize: true });
       const queryVector = Array.from(queryResult.data);
       return {
         embedding: queryVector

@@ -54,8 +54,12 @@ init();
 // How to store text in client side VectorDB
 async function store(someArrayOfStrings) {
   await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData');
+  
   // Optionally can specify callback to write status to a HTML DOM element:
   // await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData', STATUS_EL);
+  
+  // Finally you can also specify batch size to store array of strings much faster when using all-Mini-L6-v2 model only for now.
+  // await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData', undefined, 100);
 }
 
 

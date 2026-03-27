@@ -11,7 +11,7 @@
 
 Sure [check out my Codepen demo here](https://codepen.io/jasonmayes/pen/JoKMBmq)!
 
-Here's a screen shot of it in action:
+Here's a screen shot of it in action captured in real-time on an NVIDIA 1070 GPU running the larger EmbeddingGemma model:
 
 ![Screenshot of VectorSearch.js in action](https://github.com/jasonmayes/VectorSearch.js/blob/main/demo/demo.gif?raw=true)
 

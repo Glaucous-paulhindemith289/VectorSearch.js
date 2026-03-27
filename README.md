@@ -13,7 +13,7 @@ Sure [check out my Codepen demo here](https://codepen.io/jasonmayes/pen/JoKMBmq)
 
 Here's a screen shot of it in action:
 
-![Screenshot of VectorSearch.js in action](https://github.com/jasonmayes/VectorSearch.js/blob/main/demo/demo.jpg?raw=true)
+![Screenshot of VectorSearch.js in action](https://github.com/jasonmayes/VectorSearch.js/blob/main/demo/demo.gif?raw=true)
 
 ### Got questions? 
 [Reach out to me over on LinkedIn](https://www.linkedin.com/in/webai) or follow for updates on related client side Web AI projects.

